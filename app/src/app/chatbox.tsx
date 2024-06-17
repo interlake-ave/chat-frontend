@@ -16,7 +16,17 @@ const Chatbox: React.FC = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
   // Initialize the WebSocket connection
   useEffect(() => {
-    const newSocket = io('http://localhost:8080'); // Change the URL if your server is hosted elsewhere
+    const getSocketUrl = () => {
+      if (process.env.REACT_APP_ENV === "development") {
+        console.log("localhost selected")
+        return 'http://localhost:8080';
+      } else {
+        console.log("backend selected")
+        return 'http://backend:8080';
+      }
+    };
+
+    const newSocket = io(getSocketUrl());
     setSocket(newSocket);
 
     newSocket.on('message', (data: { data: string }) => {
