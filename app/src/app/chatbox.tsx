@@ -1,25 +1,62 @@
 "use client";
 
-import React, { useState, ChangeEvent, KeyboardEvent } from 'react';
+import React, { useEffect, useState, ChangeEvent, KeyboardEvent } from 'react';
+import { io, Socket } from 'socket.io-client';
 import './chatbox.css';
 
 interface Message {
   id: number;
+  timestamp: EpochTimeStamp;
   text: string;
 }
 
 const Chatbox: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState<string>('');
+  const [socket, setSocket] = useState<Socket | null>(null);
+  // Initialize the WebSocket connection
+  useEffect(() => {
+    const newSocket = io('http://localhost:8080'); // Change the URL if your server is hosted elsewhere
+    setSocket(newSocket);
+
+    newSocket.on('message', (data: { data: string }) => {
+      const newMessage: Message = {
+        id: messages.length,
+        text: data.data,
+        timestamp: 0
+      };
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+    });
+
+    newSocket.on('initial_messages', (initialMessages: Message[]) => {
+      console.log("Getting initial messages", initialMessages);
+      setMessages(initialMessages);
+    });
+
+    newSocket.on('connect', () => {
+      console.log('Connected to WebSocket server');
+    });
+
+    newSocket.on('disconnect', () => {
+      console.log('Disconnected from WebSocket server');
+    });
+
+    // Clean up the connection when the component unmounts
+    return () => {
+      newSocket.close();
+    };
+  }, [messages.length]);
 
   const handleSend = () => {
     if (inputValue.trim()) {
       const newMessage: Message = {
         id: messages.length,
         text: inputValue,
+        timestamp: 0
       };
       setMessages([...messages, newMessage]);
       setInputValue('');
+      socket?.emit('message', { data: inputValue });
     }
   };
 
