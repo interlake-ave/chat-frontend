@@ -26,10 +26,14 @@
   padding: 10px;
   background-color: #fff;
   border-top: 1px solid #ccc;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
 .message {
   margin-bottom: 10px;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
 .input-container {
@@ -45,6 +49,8 @@ input[type="text"] {
   border: 1px solid #ccc;
   border-radius: 4px;
   margin-right: 10px;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
 button {
